@@ -35,19 +35,16 @@ Route::apiResource('/meeting-appointment', MeetingAppointmentController::class);
 // Route::apiResource('/project', ProjectController::class);
 
 Route::get('/user/{user_id}//allHostedMeetings', [MeetingEventController::class, 'getMeetingsByHost']);
-Route::get('/user/{user_id}/allHostedMeetingsByDate', [MeetingEventController::class, 'getMeetingsByHostAndDate']);
+Route::get('/user/{user_id}/activeHostedMeetingsByDate', [MeetingEventController::class, 'getMeetingsByHostAndDate']);
+Route::get('/user/{userId}/activeHostedAppointments', [UserController::class, 'getActiveHostedAppointments']);
+Route::get('/user/{userId}/activeHostedAppointmentsByDate', [UserController::class, 'getActiveHostedAppointmentsByDate']);
 
 Route::post('/meeting', [MeetingEventController::class, 'storeWithAppointment']);
 Route::put('/meeting/{meeting_id}/appointment', [MeetingEventController::class, 'updateAppointment']);
 
 
 
-Route::get('/meeting-appointment/host/{userId}/all',
-            [MeetingAppointmentController::class, 'getActiveAppointmentsByHost']
-        );
-Route::get('/meeting-appointment/host/{userId}/byDate',
-            [MeetingAppointmentController::class, 'getActiveAppointmentsByHostAndDate']
-        );
+
 Route::put('/meeting-appointment/meeting/{meetingIg}',
             [MeetingAppointmentController::class, 'updateAppointmentByMeeting']
         );
