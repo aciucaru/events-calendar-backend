@@ -156,7 +156,6 @@ class MeetingEventController extends Controller
         return response()->json($meetingEvents, 200);
     }
 
-
     public function getMeetingsByHostAndDate(Request $request, string $hostUserId)
     {
         $requestData = $request->all();
@@ -165,5 +164,51 @@ class MeetingEventController extends Controller
 
         return response()->json($meetingEvents, 200);
         // return response()->json($requestData , 200);
+    }
+
+        /* This method updates the appointment of a meeting, by creating a new MeetingAppointment object
+    in the database and assigning it to the specified meeting. The new appointment becomes the active one,
+    and the last appointment of the meeting becomes inactive, obsolete ('active' => 0).
+    The JSON object corresponding to the new MeetingAppointment looks like this:
+    {
+        "id": 20, // ignored, unnecessary
+        "meeting_id_fk": 1, // ignored
+        "active": 1, // ignored
+        "start": "2023-08-07 12:45:00",
+        "end": "2023-08-07 13:45:00"
+    } */
+    public function updateAppointment(Request $request, string $meetingId)
+    {
+        $meetingEvent = MeetingEvent::find($meetingId);
+
+        if(!$meetingEvent)
+            return response()->json('Meeting not found', 404); // 404 - resource not found
+        else
+        {
+            /* because there will be a new active appointment for the meeting, the last appointment for that
+            meeting must be made inactive (obsolete) */
+            $previousMeetingAppointment = MeetingAppointment::where('meeting_id_fk', $meetingId)
+                                                            ->orderByDesc('created_at')
+                                                            ->first();
+            $previousMeetingAppointment['active'] = 0; // change the active status
+            $previousMeetingAppointment->update(); // save change to database
+
+            $validatedMeetingAppointment = $request->validate(
+                [
+                    'id' => ['exclude'], // unnecessary
+                    'meeting_id_fk' => ['exclude'], // the id of the meeting is already in the request parameter
+                    'active' => ['exclude'], // the active status will always be 1 for new appointments
+                    'start' => ['date'],
+                    'end' => ['date']
+                ]
+            );
+
+            // point the new appointment to the same meeting
+            $validatedMeetingAppointment['meeting_id_fk'] = $meetingId;
+            $validatedMeetingAppointment['active'] = 1; // make the new appointment the current one
+            $newMeetingAppointment = MeetingAppointment::create($validatedMeetingAppointment); // save the new appointment to database
+
+            return response()->json($newMeetingAppointment, 200); // 200 - succesfull request, resource updated and transmitted
+        }
     }
 }

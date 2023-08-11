@@ -38,7 +38,7 @@ Route::apiResource('/project', ProjectController::class);
 Route::get('/meeting/host/{user_id}/all', [MeetingEventController::class, 'getMeetingsByHost']);
 Route::get('/meeting/host/{user_id}/byDate', [MeetingEventController::class, 'getMeetingsByHostAndDate']);
 Route::post('/meeting', [MeetingEventController::class, 'storeWithAppointment']);
-
+Route::put('/meeting/{meetingIg}/appointment', [MeetingEventController::class, 'updateAppointment']);
 
 
 
