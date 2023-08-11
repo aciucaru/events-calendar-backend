@@ -123,7 +123,7 @@ class MeetingEventController extends Controller
      */
     public function storeWithAppointment(Request $request)
     {
-        $validatedMeetingEvent = $request->validate(
+        $validatedRequestData = $request->validate(
             [
                 // data for MeetingEvent object:
                 'host_user_id_fk' => ['required', 'integer', 'numeric', 'min:1'],
@@ -137,17 +137,16 @@ class MeetingEventController extends Controller
             ]
         );
 
+        // save the MeetingEvent in the database and get the stored object (including it's id)
+        $meetingEvent = MeetingEvent::create($validatedRequestData);
 
-        $meetingEvent = MeetingEvent::create($validatedMeetingEvent);
+        // add required data for MeetingAppointment
+        $validatedRequestData['meeting_id_fk'] = $meetingEvent['id'];
+        $validatedRequestData['active'] = 1; // this is the new active appointment corresponding to the meeting
+        //  save the MeetingAppointment to database
+        $meetingAppointment = MeetingAppointment::create($validatedRequestData);
 
-        // $meetingAppointment = MeetingAppointment::create()
-        // 'meeting_id_fk' => fake()->unique()->numberBetween(1, SeedConstants::MEETINGS_COUNT),
-        // 'active' => 1, // true
-        // 'start' => $start->format('Y-m-d H:i:s'),
-        // 'end' => $end->format('Y-m-d H:i:s')
-
-        // return response()->json($meetingEvent, 200); // 201 - succesfully created resource
-        return response()->json($validatedMeetingEvent, 200); // 201 - succesfully created resource
+        return response()->json($meetingEvent, 200); // 201 - succesfully created resource
     }
 
     public function getMeetingsByHost(string $hostUserId)
