@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Invitation;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -89,5 +90,37 @@ class InvitationController extends Controller
             $invitation->delete();
             return response()->json('Invitation deleted', 200); // 200 - succesfull request
         }
+    }
+
+    /* Returns all invitations that belong to a specific active meeting appointment */
+    public function getInvitationsByMeetingAppointment(string $meetinAppointmentId)
+    {
+        $invitations = Invitation::where('appointment_id_fk', $meetinAppointmentId)
+                                    ->get();
+
+        return response()->json($invitations, 200); // 200 - succesfull request
+    }
+
+    /* Returns all invitations to which a user was invited to and which start at a certain 
+    year and month specified in the JSON request body.
+    The JSON request body should look like this (example):
+    {
+        "year": 2023,
+        "month": 10
+    } */
+    public function getActiveInvitationsByGuestAndDate(Request $request, string $guestUserId)
+    {
+        $invitations = Invitation::whereHas('meetingAppointment',
+                function (Builder $query) use($request)
+                {
+                    $query->whereYear('start', $request->input('year'))
+                            ->whereMonth('start', $request->input('month'))
+                            ->where('active', 1); // only invitation belongging to active appointment
+                }
+            )
+            ->where('guest_user_id_fk', $guestUserId)
+            ->get();
+
+        return response()->json($invitations, 200); // 200 - succesfull request
     }
 }
