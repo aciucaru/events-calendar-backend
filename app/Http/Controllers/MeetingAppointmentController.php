@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\MeetingAppointment;
-use App\Models\MeetingEvent;
+use App\Models\Invitation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use App\Models\MeetingAppointment;
 
 class MeetingAppointmentController extends Controller
 {
@@ -138,8 +139,35 @@ class MeetingAppointmentController extends Controller
         return response()->json($appointments, 200);
     }
 
-    public function addInvitation(Request $request, string $meetingAppointmentId)
+    /* Adds an invitation sent as JSON request object to the appointment with specified id.
+    The JSON object that is passed is a typical Invitation object:
     {
-        
+        "id": 1,
+        "appointment_id_fk": 2,
+        "guest_user_id_fk": 20,
+        "guest_answer": "NO"
+    } */
+    public function addInvitation(Request $request, string $id)
+    {
+        $meetingAppointment = MeetingAppointment::find($id);
+
+        if(!$meetingAppointment)
+            return response()->json('Meeting appointment not found', 404); // 404 - resource not found
+        else
+        {
+            $validatedInvitation = $request->validate(
+                [
+                    'id' => [ 'exclude' ], // ignored
+                    'appointment_id_fk' => [ 'exclude' ], // ignored, the appointment id is passed as paramenter
+                    'guest_user_id_fk' => [ 'integer', 'numeric', 'min:1' ],
+                    'guest_answer' => [ Rule::in(['NO_ANSWER', 'YES', 'NO', 'MAYBE']) ]
+                ]
+            );
+
+            $validatedInvitation['appointment_id_fk'] = $id;
+            $newInvitation = Invitation::create($validatedInvitation);
+
+            return response()->json($newInvitation, 200);
+        }
     }
 }
