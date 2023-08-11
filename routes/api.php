@@ -34,28 +34,22 @@ Route::apiResource('/meeting-appointment', MeetingAppointmentController::class);
 // Route::apiResource('/invitation', InvitationController::class);
 // Route::apiResource('/project', ProjectController::class);
 
-Route::get('/user/{user_id}//allHostedMeetings', [MeetingEventController::class, 'getMeetingsByHost']);
-Route::get('/user/{user_id}/activeHostedMeetingsByDate', [MeetingEventController::class, 'getMeetingsByHostAndDate']);
+Route::get('/user/{userId}//allHostedMeetings', [MeetingEventController::class, 'getMeetingsByHost']);
+Route::get('/user/{userId}/activeHostedMeetingsByDate', [MeetingEventController::class, 'getMeetingsByHostAndDate']);
 Route::get('/user/{userId}/activeHostedAppointments', [UserController::class, 'getActiveHostedAppointments']);
 Route::get('/user/{userId}/activeHostedAppointmentsByDate', [UserController::class, 'getActiveHostedAppointmentsByDate']);
 
+
+Route::get('/meeting', [MeetingEventController::class, 'index']);
+Route::get('/meeting/{meetingId}', [MeetingEventController::class, 'show']);
 Route::post('/meeting', [MeetingEventController::class, 'storeWithAppointment']);
-Route::put('/meeting/{meeting_id}/appointment', [MeetingEventController::class, 'updateAppointment']);
+Route::put('/meeting/{meetingId}/appointment', [MeetingEventController::class, 'updateAppointment']);
 
 
+Route::get('/meeting-appointment/{appointmentId}/invitation', [MeetingAppointmentController::class, 'getInvitations']);
+Route::post('/meeting-appointment/{appointmentId}/invitation', [MeetingAppointmentController::class, 'addInvitation']);
 
 
-Route::put('/meeting-appointment/meeting/{meetingIg}',
-            [MeetingAppointmentController::class, 'updateAppointmentByMeeting']
-        );
-Route::post('/meeting-appointment/{meetingIg}/invitation',
-        [MeetingAppointmentController::class, 'addInvitation']
-    );
-
-
-Route::get('/invitation/meeting-appointment/{meetingAppointmentId}/all',
-            [InvitationController::class, 'getInvitationsByMeetingAppointment']
-        );
 Route::get('/invitation/meeting-appointment/{meetingAppointmentId}/byDate',
             [InvitationController::class, 'getActiveInvitationsByGuestAndDate']
         );

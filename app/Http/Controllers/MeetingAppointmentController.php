@@ -95,7 +95,14 @@ class MeetingAppointmentController extends Controller
         }
     }
 
+    /* Returns all invitations that belong to a specific active meeting appointment */
+    public function getInvitations(string $appointmentId)
+    {
+        $invitations = Invitation::where('appointment_id_fk', $appointmentId)
+                                    ->get();
 
+        return response()->json($invitations, 200); // 200 - succesfull request
+    }
 
     /* Adds an invitation sent as JSON request object to the appointment with specified id.
     The JSON object that is passed is a typical Invitation object:
