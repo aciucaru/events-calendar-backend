@@ -40,11 +40,16 @@ Route::get('/meeting/host/{user_id}/byDate', [MeetingEventController::class, 'ge
 Route::post('/meeting', [MeetingEventController::class, 'storeWithAppointment']);
 
 
+
+
 Route::get('/meeting-appointment/host/{userId}/all',
             [MeetingAppointmentController::class, 'getActiveAppointmentsByHost']
         );
 Route::get('/meeting-appointment/host/{userId}/byDate',
             [MeetingAppointmentController::class, 'getActiveAppointmentsByHostAndDate']
+        );
+Route::put('/meeting-appointment/meeting/{meetingIg}',
+            [MeetingAppointmentController::class, 'updateAppointmentByMeeting']
         );
 
 

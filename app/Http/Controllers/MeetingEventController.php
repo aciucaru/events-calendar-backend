@@ -75,7 +75,7 @@ class MeetingEventController extends Controller
         {
             $validatedMeetingEvent = $request->validate(
                 [
-                    'host_user_id_fk' => ['integer', 'numeric', 'min:1'],
+                    'host_user_id_fk' => ['exclude'], // the host of the meeting should not be changed
                     'location_id_fk' => ['integer', 'numeric', 'min:1'],
                     'title' => ['string', 'max:255'],
                     'description' => ['string', 'max:4096']
