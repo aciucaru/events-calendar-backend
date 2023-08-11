@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\MeetingAppointment;
 use App\Models\MeetingEvent;
 use Illuminate\Http\Request;
 
@@ -101,6 +102,52 @@ class MeetingEventController extends Controller
             $meetingEvent->delete();
             return response()->json('Meeting deleted', 200); // 200 - succesfull request
         }
+    }
+
+    /* Since a MeetingEvent does not contain any date information, the date information is stored
+    in a MeetingAppointment object. Because of this you cannot have a MeetingEvent without an
+    associated MeetingApoointment.
+    This method creates both the MeetingEvent and an associated MeetingAppointment and receives the
+    following JSON object:
+    {
+        // data for MeetingEvent object:
+        'host_user_id_fk',
+        'location_id_fk',
+        'title',
+        'description',
+
+        // data for MeetingAppointment object
+        'start',
+        'end'
+    }
+     */
+    public function storeWithAppointment(Request $request)
+    {
+        $validatedMeetingEvent = $request->validate(
+            [
+                // data for MeetingEvent object:
+                'host_user_id_fk' => ['required', 'integer', 'numeric', 'min:1'],
+                'location_id_fk' => ['required', 'integer', 'numeric', 'min:1'],
+                'title' => ['required', 'string', 'max:255'],
+                'description' => ['required', 'string', 'max:4096'],
+
+                // data for MeetingAppointment object
+                'start' => ['required', 'date'],
+                'end' => ['required', 'date']
+            ]
+        );
+
+
+        $meetingEvent = MeetingEvent::create($validatedMeetingEvent);
+
+        // $meetingAppointment = MeetingAppointment::create()
+        // 'meeting_id_fk' => fake()->unique()->numberBetween(1, SeedConstants::MEETINGS_COUNT),
+        // 'active' => 1, // true
+        // 'start' => $start->format('Y-m-d H:i:s'),
+        // 'end' => $end->format('Y-m-d H:i:s')
+
+        // return response()->json($meetingEvent, 200); // 201 - succesfully created resource
+        return response()->json($validatedMeetingEvent, 200); // 201 - succesfully created resource
     }
 
     public function getMeetingsByHost(string $hostUserId)
