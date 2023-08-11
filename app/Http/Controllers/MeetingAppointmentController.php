@@ -143,6 +143,7 @@ class MeetingAppointmentController extends Controller
     and the last appointment of the meeting becomes inactive, obsolete ('active' => 0).
     The JSON object corresponding to the new MeetingAppointment looks like this:
     {
+        "id": 20, // ignored, unnecessary
         "meeting_id_fk": 1, // ignored
         "active": 1, // ignored
         "start": "2023-08-07 12:45:00",
@@ -166,9 +167,9 @@ class MeetingAppointmentController extends Controller
 
             $validatedMeetingAppointment = $request->validate(
                 [
-                    // 'id' => ['exclude'], // unnecessary
-                    // 'meeting_id_fk' => ['exclude'], // the id of the meeting is already in the request parameter
-                    // 'active' => ['exclude'], // the active status will always be 1 for new appointments
+                    'id' => ['exclude'], // unnecessary
+                    'meeting_id_fk' => ['exclude'], // the id of the meeting is already in the request parameter
+                    'active' => ['exclude'], // the active status will always be 1 for new appointments
                     'start' => ['date'],
                     'end' => ['date']
                 ]
