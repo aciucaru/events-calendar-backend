@@ -37,8 +37,24 @@ Route::apiResource('/project', ProjectController::class);
 // Route::get('/user-meetings/{user_id}', [MeetingEventController::class, 'meetingsHostedBy']);
 Route::get('/meeting/host/{user_id}/all', [MeetingEventController::class, 'getMeetingsByHost']);
 Route::get('/meeting/host/{user_id}/byDate', [MeetingEventController::class, 'getMeetingsByHostAndDate']);
-
-Route::get('/meeting-appointment/host/{userId}/all', [MeetingAppointmentController::class, 'getAppointmentsByHost']);
-Route::get('/meeting-appointment/host/{userId}/byDate', [MeetingAppointmentController::class, 'getAppointmentsByHostAndDate']);
+Route::post('/meeting', [MeetingEventController::class, 'storeWithAppointment']);
 
 
+Route::get('/meeting-appointment/host/{userId}/all',
+            [MeetingAppointmentController::class, 'getActiveAppointmentsByHost']
+        );
+Route::get('/meeting-appointment/host/{userId}/byDate',
+            [MeetingAppointmentController::class, 'getActiveAppointmentsByHostAndDate']
+        );
+
+
+Route::get('/invitation/meeting-appointment/{meetingAppointmentId}/all',
+            [InvitationController::class, 'getInvitationsByMeetingAppointment']
+        );
+Route::get('/invitation/meeting-appointment/{meetingAppointmentId}/byDate',
+            [InvitationController::class, 'getActiveInvitationsByGuestAndDate']
+        );
+
+
+        
+        
