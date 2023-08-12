@@ -103,6 +103,13 @@ class InvitationController extends Controller
     } */
     public function getActiveInvitationsByGuestAndDate(Request $request, string $guestUserId)
     {
+        $validatedRequestData = $request->validate(
+            [
+                'year' => [ 'required', 'integer', 'numeric', 'min:1900' ],
+                'month' => [ 'required', 'integer', 'numeric', 'min:1' , 'max:12'], // month is between 1...12
+            ]
+        );
+
         $invitations = Invitation::whereHas('meetingAppointment',
                 function (Builder $query) use($request)
                 {
@@ -113,6 +120,17 @@ class InvitationController extends Controller
             )
             ->where('guest_user_id_fk', $guestUserId)
             ->get();
+
+        $invitations = Invitation::whereHas('meetingAppointment',
+            function (Builder $query) use($validatedRequestData)
+            {
+                $query->whereYear('start', $validatedRequestData['year'])
+                        ->whereMonth('start', $validatedRequestData['month'])
+                        ->where('active', 1); // only invitation belongging to active appointment
+            }
+        )
+        ->where('guest_user_id_fk', $guestUserId)
+        ->get();
 
         return response()->json($invitations, 200); // 200 - succesfull request
     }
