@@ -34,10 +34,11 @@ Route::apiResource('/meeting-appointment', MeetingAppointmentController::class);
 // Route::apiResource('/invitation', InvitationController::class);
 // Route::apiResource('/project', ProjectController::class);
 
-Route::get('/user/{userId}//allHostedMeetings', [MeetingEventController::class, 'getMeetingsByHost']);
-Route::get('/user/{userId}/activeHostedMeetingsByDate', [MeetingEventController::class, 'getMeetingsByHostAndDate']);
+Route::get('/user/{userId}/allHostedMeetings', [UserController::class, 'getHostedMeetings']);
+Route::get('/user/{userId}/hostedMeetingsByDate', [UserController::class, 'getHostedMeetingsBydDate']);
 Route::get('/user/{userId}/activeHostedAppointments', [UserController::class, 'getActiveHostedAppointments']);
 Route::get('/user/{userId}/activeHostedAppointmentsByDate', [UserController::class, 'getActiveHostedAppointmentsByDate']);
+Route::get('/user/{userId}/activeInvitationsByDate', [UserController::class, 'getActiveInvitationsByDate']);
 
 
 Route::get('/meeting', [MeetingEventController::class, 'index']);
@@ -50,9 +51,7 @@ Route::get('/meeting-appointment/{appointmentId}/invitation', [MeetingAppointmen
 Route::post('/meeting-appointment/{appointmentId}/invitation', [MeetingAppointmentController::class, 'addInvitation']);
 
 
-Route::get('/invitation/meeting-appointment/{meetingAppointmentId}/byDate',
-            [InvitationController::class, 'getActiveInvitationsByGuestAndDate']
-        );
+
 
 
         
