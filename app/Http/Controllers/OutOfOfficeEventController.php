@@ -91,4 +91,24 @@ class OutOfOfficeEventController extends Controller
             return response()->json('Out of office event deleted', 200); // 200 - request succsesfull
         }
     }
+
+    /* Return all out-of-office events for each user of an array of users and starting at a
+    certain date.
+    The JSON request body looks like this (example):
+    {
+        "userIdArray": [1, 10, 12, 20],
+        "year": 2023, // start year
+        "month": 10 // start month
+    } */
+    public function getEventsByUsersAndDate(Request $request)
+    {
+        $validatedRequestData = $request->validate(
+            [
+                'userIdArray' => ['required', 'integer', 'numeric', 'min:1'],
+                'location_id_fk' => ['required', 'integer', 'numeric', 'min:1'],
+                'title' => ['required', 'string', 'max:255'],
+                'description' => ['required', 'string', 'max:4096'],
+            ]
+        );
+    }
 }
