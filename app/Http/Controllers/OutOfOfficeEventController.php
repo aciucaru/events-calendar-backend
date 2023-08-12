@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\OutOfOfficeEvent;
 use Illuminate\Http\Request;
+
+use App\Models\OutOfOfficeEvent;
+use App\Models\User;
 
 class OutOfOfficeEventController extends Controller
 {
@@ -92,23 +94,30 @@ class OutOfOfficeEventController extends Controller
         }
     }
 
-    /* Return all out-of-office events for each user of an array of users and starting at a
-    certain date.
+    /* Return all out-of-office events for each user of an array of users and having a 'start' date
+    in a certain year and month.
     The JSON request body looks like this (example):
     {
         "userIdArray": [1, 10, 12, 20],
-        "year": 2023, // start year
-        "month": 10 // start month
+        "year": 2023, // the year of the 'start' date of the event
+        "month": 10 // the month of the 'start' date of the event
     } */
-    public function getEventsByUsersAndDate(Request $request)
-    {
-        $validatedRequestData = $request->validate(
-            [
-                'userIdArray' => ['required', 'integer', 'numeric', 'min:1'],
-                'location_id_fk' => ['required', 'integer', 'numeric', 'min:1'],
-                'title' => ['required', 'string', 'max:255'],
-                'description' => ['required', 'string', 'max:4096'],
-            ]
-        );
-    }
+    // public function getEventsByUsersAndDate(Request $request)
+    // {
+    //     $validatedRequestData = $request->validate(
+    //         [
+    //             'userIdArray' => ['required', 'array'],
+    //             'userIdArray.*' => ['integer', 'numeric', 'min:1' ], // check if all array elements are integers
+    //             'year' => [ 'required', 'integer', 'numeric', 'min:1900' ],
+    //             'month' => [ 'required', 'integer', 'numeric', 'min:1' , 'max:12'], // month is between 1...12
+    //         ]
+    //     );
+
+    //     // first, get all users corresponding to the ids in the '$userIdArray'
+    //     $users = User::findMany($validatedRequestData['userIdArray'])
+    //             ->outOfOfficeEvents()
+    //             ->unique()
+
+    //     $outOfOfficeEvents = OutOfOfficeEvent::whereBelongs()
+    // }
 }
