@@ -10,6 +10,7 @@ use App\Models\User;
 
 use App\Models\MeetingAppointment;
 use App\Models\MeetingEvent;
+use App\Models\OutOfOfficeEvent;
 
 class UserController extends Controller
 {
@@ -99,6 +100,7 @@ class UserController extends Controller
         }
     }
 
+    // unnecessary, gets all meeting, uses to many resources
     public function getHostedMeetings(string $hostUserId)
     {
         $meetingEvents = MeetingEvent::where('host_user_id_fk', $hostUserId)->get();
@@ -213,5 +215,35 @@ class UserController extends Controller
         ->get();
 
         return response()->json($invitations, 200); // 200 - succesfull request
+    }
+
+
+    /* Return out-of-office events which belong to a certain user and have a 'start' date
+    in a certain year and month.
+    The JSON request body looks like this (example):
+    {
+        "year": 2023, // the year of the 'start' date of the event
+        "month": 10 // the month of the 'start' date of the event
+    } */
+    public function getOutOfOfficeEventsByDate(Request $request, string $userId)
+    {
+        $validatedRequestData = $request->validate(
+            [
+                'year' => [ 'required', 'integer', 'numeric', 'min:1900' ],
+                'month' => [ 'required', 'integer', 'numeric', 'min:1' , 'max:12'], // month is between 1...12
+            ]
+        );
+
+        // first, get all users corresponding to the ids in the '$userIdArray'
+        $user = User::find($userId);
+
+        $outOfOfficeEvents = OutOfOfficeEvent::whereBelongsTo($user)
+                                                ->whereYear('start', $validatedRequestData['year'])
+                                                ->whereMonth('start', $validatedRequestData['month'])
+                                                ->get();
+
+
+        return response()->json($outOfOfficeEvents, 200);
+
     }
 }
