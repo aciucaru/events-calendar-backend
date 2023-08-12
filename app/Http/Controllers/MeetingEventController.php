@@ -149,24 +149,7 @@ class MeetingEventController extends Controller
         return response()->json($meetingEvent, 200); // 201 - succesfully created resource
     }
 
-    public function getMeetingsByHost(string $hostUserId)
-    {
-        $meetingEvents = MeetingEvent::where('host_user_id_fk', $hostUserId)->get();
-
-        return response()->json($meetingEvents, 200);
-    }
-
-    public function getMeetingsByHostAndDate(Request $request, string $hostUserId)
-    {
-        $requestData = $request->all();
-
-        $meetingEvents = MeetingEvent::where('host_user_id_fk', $hostUserId)->get();
-
-        return response()->json($meetingEvents, 200);
-        // return response()->json($requestData , 200);
-    }
-
-        /* This method updates the appointment of a meeting, by creating a new MeetingAppointment object
+    /* This method updates the appointment of a meeting, by creating a new MeetingAppointment object
     in the database and assigning it to the specified meeting. The new appointment becomes the active one,
     and the last appointment of the meeting becomes inactive, obsolete ('active' => 0).
     The JSON object corresponding to the new MeetingAppointment looks like this:
