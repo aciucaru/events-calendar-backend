@@ -49,6 +49,7 @@ Route::put('/meeting/{meetingId}/appointment', [MeetingEventController::class, '
 
 Route::get('/meeting-appointment/{appointmentId}/invitation', [MeetingAppointmentController::class, 'getInvitations']);
 Route::post('/meeting-appointment/{appointmentId}/invitation', [MeetingAppointmentController::class, 'addInvitation']);
+Route::delete('/meeting-appointment/{appointmentId}/invitation', [MeetingAppointmentController::class, 'removeInvitations']);
 
 
 
