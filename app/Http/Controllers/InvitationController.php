@@ -91,47 +91,4 @@ class InvitationController extends Controller
             return response()->json('Invitation deleted', 200); // 200 - succesfull request
         }
     }
-
-
-
-    /* Returns all invitations to which a user was invited to and which start at a certain 
-    year and month specified in the JSON request body.
-    The JSON request body should look like this (example):
-    {
-        "year": 2023,
-        "month": 10
-    } */
-    public function getActiveInvitationsByGuestAndDate(Request $request, string $guestUserId)
-    {
-        $validatedRequestData = $request->validate(
-            [
-                'year' => [ 'required', 'integer', 'numeric', 'min:1900' ],
-                'month' => [ 'required', 'integer', 'numeric', 'min:1' , 'max:12'], // month is between 1...12
-            ]
-        );
-
-        $invitations = Invitation::whereHas('meetingAppointment',
-                function (Builder $query) use($request)
-                {
-                    $query->whereYear('start', $request->input('year'))
-                            ->whereMonth('start', $request->input('month'))
-                            ->where('active', 1); // only invitation belongging to active appointment
-                }
-            )
-            ->where('guest_user_id_fk', $guestUserId)
-            ->get();
-
-        $invitations = Invitation::whereHas('meetingAppointment',
-            function (Builder $query) use($validatedRequestData)
-            {
-                $query->whereYear('start', $validatedRequestData['year'])
-                        ->whereMonth('start', $validatedRequestData['month'])
-                        ->where('active', 1); // only invitation belongging to active appointment
-            }
-        )
-        ->where('guest_user_id_fk', $guestUserId)
-        ->get();
-
-        return response()->json($invitations, 200); // 200 - succesfull request
-    }
 }
