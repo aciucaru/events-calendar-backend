@@ -203,8 +203,20 @@ class UserController extends Controller
             ->where('guest_user_id_fk', $guestUserId)
             ->get();
 
-        $invitations = Invitation::whereHas('meetingAppointment',
-            function (Builder $query) use($validatedRequestData)
+        // $invitations = Invitation::whereHas('meetingAppointment',
+        //     function (Builder $query) use($validatedRequestData)
+        //     {
+        //         $query->whereYear('start', $validatedRequestData['year'])
+        //                 ->whereMonth('start', $validatedRequestData['month'])
+        //                 ->where('active', 1); // only invitation belongging to active appointment
+        //     }
+        // )
+        // ->where('guest_user_id_fk', $guestUserId)
+        // ->get();
+
+        // this should be the correct version
+        $invitations = Invitation::whereBelongsTo('meetingAppointment',
+        function (Builder $query) use($validatedRequestData)
             {
                 $query->whereYear('start', $validatedRequestData['year'])
                         ->whereMonth('start', $validatedRequestData['month'])
