@@ -112,9 +112,9 @@ class MeetingAppointmentController extends Controller
         "guest_user_id_fk": 20,
         "guest_answer": "NO"
     } */
-    public function addInvitation(Request $request, string $id)
+    public function addInvitation(Request $request, string $appointmentId)
     {
-        $meetingAppointment = MeetingAppointment::find($id);
+        $meetingAppointment = MeetingAppointment::find($appointmentId);
 
         if(!$meetingAppointment)
             return response()->json('Meeting appointment not found', 404); // 404 - resource not found
@@ -129,10 +129,43 @@ class MeetingAppointmentController extends Controller
                 ]
             );
 
-            $validatedInvitation['appointment_id_fk'] = $id;
+            $validatedInvitation['appointment_id_fk'] = $appointmentId;
             $newInvitation = Invitation::create($validatedInvitation);
 
             return response()->json($newInvitation, 200);
+        }
+    }
+
+    /* Removes one or multiple invitations from the specified appointment id. The invitations
+    to be removed are passed as a JSON request object that stores an array of invitations ids to be removed:
+    {
+        "invitationIdArray": [2, 5, 20, 50, 61]
+    }*/
+    public function removeInvitations(Request $request, string $appointmentId)
+    {
+        $validatedRequestData = $request->validate(
+            [
+                'invitationIdArray' => ['required', 'array'],
+                'invitationIdArray.*' => ['integer', 'numeric', 'min:1' ] // check if all array elements are integers
+            ]
+        );
+
+        $meetingAppointment = MeetingAppointment::find($appointmentId);
+
+        if(!$meetingAppointment)
+            return response()->json('Appointment specified in id not found', 404); // 404 - resource not found
+        else
+        {
+            $invitations = Invitation::whereBelongsTo($meetingAppointment)
+                                    ->whereIn('id', $validatedRequestData['invitationIdArray']) // filter by id array
+                                    ->get();
+
+            foreach($invitations as $invitation)
+            {
+                $invitation->delete();
+            }
+
+            return response()->json($invitations, 200);
         }
     }
 }
