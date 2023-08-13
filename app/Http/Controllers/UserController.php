@@ -108,13 +108,12 @@ class UserController extends Controller
         return response()->json($meetingEvents, 200);
     }
 
-    
     public function getHostedMeetingsBydDate(Request $request, string $hostUserId)
     {
         $validatedRequestData = $request->validate(
             [
-                'year' => [ 'required', 'integer', 'numeric', 'min:1900' ],
-                'month' => [ 'required', 'integer', 'numeric', 'min:1' , 'max:12'], // month is between 1...12
+                'startDate' => [ 'required', 'date' ],
+                'endDate' => [ 'required', 'date'],
             ]
         );
 
@@ -123,8 +122,8 @@ class UserController extends Controller
                         ->whereHas('meetingAppointments',
                                     function (Builder $query) use ($validatedRequestData)
                                     {
-                                        $query->whereYear('start', $validatedRequestData['year'])
-                                                ->whereMonth('start', $validatedRequestData['month']);
+                                        $query->whereDate('start', '>=', $validatedRequestData['startDate'])
+                                                ->whereDate('start', '<=', $validatedRequestData['endDate']);
                                     }
                                 )
                         ->get();
@@ -153,15 +152,22 @@ class UserController extends Controller
         return response()->json($appointments, 200);
     }
 
-    /* Returns all active appointmnets hosted (created) bt a certain user in a certain
-    year and month specified in the JSON request body.
+    /* Returns all active appointmnets hosted (created) bt a certain user, that start between 2 dates
+    specified in the JSON request body.
     The JSON request body should look like this (example):
     {
-        "year": 2023,
-        "month": 10
+        "startDate": "2023-08-07",
+        "endDate": "2023-09-30"
     } */ 
     public function getActiveHostedAppointmentsByDate(Request $request, string $hostUserId)
     {
+        $validatedRequestData = $request->validate(
+            [
+                'startDate' => [ 'required', 'date' ],
+                'endDate' => [ 'required', 'date'],
+            ]
+        );
+
         $appointments = MeetingAppointment::whereHas('meetingEvent',
                                 function (Builder $query) use($hostUserId)
                                 {
@@ -169,69 +175,56 @@ class UserController extends Controller
                                 }
                             )
                             ->where('active', 1) // active == true
-                            ->whereYear('start', $request->input('year'))
-                            ->whereMonth('start', $request->input('month'))
+                            ->whereDate('start', '>=', $validatedRequestData['startDate'])
+                            ->whereDate('start', '<=', $validatedRequestData['endDate'])
                             ->get();
 
         return response()->json($appointments, 200);
     }
 
-        /* Returns all invitations to which a user was invited to and which start at a certain 
-    year and month specified in the JSON request body.
+    /* Returns all invitations to which an user was invited to and which start between 2 dates specified
+    in the JSON request body.
     The JSON request body should look like this (example):
     {
-        "year": 2023,
-        "month": 10
+        "startDate": "2023-08-07",
+        "endDate": "2023-09-30"
     } */
     public function getActiveInvitationsByDate(Request $request, string $guestUserId)
     {
         $validatedRequestData = $request->validate(
             [
-                'year' => [ 'required', 'integer', 'numeric', 'min:1900' ],
-                'month' => [ 'required', 'integer', 'numeric', 'min:1' , 'max:12'], // month is between 1...12
+                'startDate' => [ 'required', 'date' ],
+                'endDate' => [ 'required', 'date'],
             ]
         );
 
         $invitations = Invitation::whereHas('meetingAppointment',
-            function (Builder $query) use($validatedRequestData)
-            {
-                $query->whereYear('start', $validatedRequestData['year'])
-                        ->whereMonth('start', $validatedRequestData['month'])
-                        ->where('active', 1); // only invitation belongging to active appointment
-            }
-        )
-        ->where('guest_user_id_fk', $guestUserId)
-        ->get();
-
-        // this should be the correct version but it DOES NOT WORK!
-        // $invitations = Invitation::whereBelongsTo('meetingAppointment',
-        // function (Builder $query) use($validatedRequestData)
-        //     {
-        //         $query->whereYear('start', $validatedRequestData['year'])
-        //                 ->whereMonth('start', $validatedRequestData['month'])
-        //                 ->where('active', 1); // only invitation belongging to active appointment
-        //     }
-        // )
-        // ->where('guest_user_id_fk', $guestUserId)
-        // ->get();
+                                        function (Builder $query) use($validatedRequestData)
+                                        {
+                                            $query->whereDate('start', '>=', $validatedRequestData['startDate'])
+                                                    ->whereDate('start', '<=', $validatedRequestData['endDate'])
+                                                    ->where('active', 1); // only invitation belongging to active appointment
+                                        }
+                                    )
+                                    ->where('guest_user_id_fk', $guestUserId)
+                                    ->get();
 
         return response()->json($invitations, 200); // 200 - succesfull request
     }
 
-
-    /* Return out-of-office events which belong to a certain user and have a 'start' date
-    in a certain year and month.
+    /* Return out-of-office events which belong to a certain user and which start between 2 dates specified in
+    the JSON request body.
     The JSON request body looks like this (example):
     {
-        "year": 2023, // the year of the 'start' date of the event
-        "month": 10 // the month of the 'start' date of the event
+        "startDate": "2023-08-07",
+        "endDate": "2023-09-30"
     } */
     public function getOutOfOfficeEventsByDate(Request $request, string $userId)
     {
         $validatedRequestData = $request->validate(
             [
-                'year' => [ 'required', 'integer', 'numeric', 'min:1900' ],
-                'month' => [ 'required', 'integer', 'numeric', 'min:1' , 'max:12'], // month is between 1...12
+                'startDate' => [ 'required', 'date' ],
+                'endDate' => [ 'required', 'date'],
             ]
         );
 
@@ -239,12 +232,10 @@ class UserController extends Controller
         $user = User::find($userId);
 
         $outOfOfficeEvents = OutOfOfficeEvent::whereBelongsTo($user)
-                                                ->whereYear('start', $validatedRequestData['year'])
-                                                ->whereMonth('start', $validatedRequestData['month'])
+                                                ->whereDate('start', '>=', $validatedRequestData['startDate'])
+                                                ->whereDate('start', '<=', $validatedRequestData['endDate'])
                                                 ->get();
 
-
         return response()->json($outOfOfficeEvents, 200);
-
     }
 }
