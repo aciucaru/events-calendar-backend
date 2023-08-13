@@ -36,7 +36,7 @@ class Invitation extends Model
     protected $with =
     [
         // 'meetingAppointment', // $this->meetingAppointment() method
-        'guestUser' // $this->gustUser() method
+        'guestUser' // $this->gustUser() method;  THIS MUST REMAIN!!, it's sent to the fron-end
     ];
 
     public function meetingAppointment()
