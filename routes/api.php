@@ -30,11 +30,12 @@ use Illuminate\Support\Facades\Route;
 // Route::apiResource('/location', LocationController::class);
 // Route::apiResource('/outofoffice', OutOfOfficeEventController::class);
 // Route::apiResource('/meeting', MeetingEventController::class);
-Route::apiResource('/meeting-appointment', MeetingAppointmentController::class);
+// Route::apiResource('/meeting-appointment', MeetingAppointmentController::class);
 // Route::apiResource('/invitation', InvitationController::class);
 // Route::apiResource('/project', ProjectController::class);
 
-// Route::get('/user/{userId}/allHostedMeetings', [UserController::class, 'getHostedMeetings']); // unnecessary
+Route::get('/user/all', [UserController::class, 'index']); // unnecessary
+Route::get('/user/{userId}/allHostedMeetings', [UserController::class, 'getHostedMeetings']); // unnecessary
 Route::get('/user/{userId}/hostedMeetingsByDate', [UserController::class, 'getHostedMeetingsBydDate']);
 Route::get('/user/{userId}/outOfOfficeEventsByDate', [UserController::class, 'getOutOfOfficeEventsByDate']);
 Route::get('/user/{userId}/activeHostedAppointments', [UserController::class, 'getActiveHostedAppointments']);
