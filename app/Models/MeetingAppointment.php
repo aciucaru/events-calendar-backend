@@ -32,7 +32,7 @@ class MeetingAppointment extends Model
 
     protected $with =
     [
-        'meetingEvent', // $this->meetingEvent() relationship method
+        'meetingEvent', // $this->meetingEvent() relationship method; THIS MUST REMAIN!!, it's sent to the fron-end
         // 'invitations' // $this->invitations() relationship method
     ];
 
