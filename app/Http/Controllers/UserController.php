@@ -108,22 +108,25 @@ class UserController extends Controller
         return response()->json($meetingEvents, 200);
     }
 
+    //     $validatedRequestData = $request->validate(
+    //         [
+    //             'startDate' => [ 'required', 'date' ],
+    //             'endDate' => [ 'required', 'date'],
+    //         ]
+    //     );
+
     public function getHostedMeetingsBydDate(Request $request, string $hostUserId)
     {
-        $validatedRequestData = $request->validate(
-            [
-                'startDate' => [ 'required', 'date' ],
-                'endDate' => [ 'required', 'date'],
-            ]
-        );
+        $startDate = $request->query('startDate');
+        $endDate = $request->query('endDate');
 
         $hostedMeetings = 
             MeetingEvent::where('host_user_id_fk', $hostUserId)
                         ->whereHas('meetingAppointments',
-                                    function (Builder $query) use ($validatedRequestData)
+                                    function (Builder $query) use ($startDate, $endDate)
                                     {
-                                        $query->whereDate('start', '>=', $validatedRequestData['startDate'])
-                                                ->whereDate('start', '<=', $validatedRequestData['endDate']);
+                                        $query->whereDate('start', '>=', $startDate)
+                                                ->whereDate('start', '<=', $endDate);
                                     }
                                 )
                         ->get();
@@ -153,56 +156,40 @@ class UserController extends Controller
     }
 
     /* Returns all active appointmnets hosted (created) bt a certain user, that start between 2 dates
-    specified in the JSON request body.
-    The JSON request body should look like this (example):
-    {
-        "startDate": "2023-08-07",
-        "endDate": "2023-09-30"
-    } */ 
+    specified as query parameters
+    The query parameters should lokk like this: ?startDate=2023-08-21&endDate=2023-09-01 */ 
     public function getActiveHostedAppointmentsByDate(Request $request, string $hostUserId)
     {
-        $validatedRequestData = $request->validate(
-            [
-                'startDate' => [ 'required', 'date' ],
-                'endDate' => [ 'required', 'date'],
-            ]
-        );
+        $startDate = $request->query('startDate');
+        $endDate = $request->query('endDate');
 
         $appointments = MeetingAppointment::whereHas('meetingEvent',
-                                function (Builder $query) use($hostUserId)
+                                function (Builder $query) use($hostUserId, $startDate, $endDate)
                                 {
                                     $query->where('host_user_id_fk', $hostUserId);
                                 }
                             )
                             ->where('active', 1) // active == true
-                            ->whereDate('start', '>=', $validatedRequestData['startDate'])
-                            ->whereDate('start', '<=', $validatedRequestData['endDate'])
+                            ->whereDate('start', '>=', $startDate)
+                            ->whereDate('start', '<=', $endDate)
                             ->get();
 
         return response()->json($appointments, 200);
     }
 
-    /* Returns all invitations to which an user was invited to and which start between 2 dates specified
-    in the JSON request body.
-    The JSON request body should look like this (example):
-    {
-        "startDate": "2023-08-07",
-        "endDate": "2023-09-30"
-    } */
+    /* Returns all invitations to which an user was invited to and which start between 2 dates
+    specified as query parameters.
+    The query parameters should lokk like this: ?startDate=2023-08-21&endDate=2023-09-01 */ 
     public function getActiveInvitationsByDate(Request $request, string $guestUserId)
     {
-        $validatedRequestData = $request->validate(
-            [
-                'startDate' => [ 'required', 'date' ],
-                'endDate' => [ 'required', 'date'],
-            ]
-        );
+        $startDate = $request->query('startDate');
+        $endDate = $request->query('endDate');
 
         $invitations = Invitation::whereHas('meetingAppointment',
-                                        function (Builder $query) use($validatedRequestData)
+                                        function (Builder $query) use($startDate, $endDate)
                                         {
-                                            $query->whereDate('start', '>=', $validatedRequestData['startDate'])
-                                                    ->whereDate('start', '<=', $validatedRequestData['endDate'])
+                                            $query->whereDate('start', '>=', $startDate)
+                                                    ->whereDate('start', '<=', $endDate)
                                                     ->where('active', 1); // only invitation belongging to active appointment
                                         }
                                     )
@@ -212,28 +199,20 @@ class UserController extends Controller
         return response()->json($invitations, 200); // 200 - succesfull request
     }
 
-    /* Return out-of-office events which belong to a certain user and which start between 2 dates specified in
-    the JSON request body.
-    The JSON request body looks like this (example):
-    {
-        "startDate": "2023-08-07",
-        "endDate": "2023-09-30"
-    } */
+    /* Return out-of-office events which belong to a certain user and which start between 2 dates
+    specified as query parameters.
+    The query parameters should lokk like this: ?startDate=2023-08-21&endDate=2023-09-01 */ 
     public function getOutOfOfficeEventsByDate(Request $request, string $userId)
     {
-        $validatedRequestData = $request->validate(
-            [
-                'startDate' => [ 'required', 'date' ],
-                'endDate' => [ 'required', 'date'],
-            ]
-        );
+        $startDate = $request->query('startDate');
+        $endDate = $request->query('endDate');
 
         // first, get all users corresponding to the ids in the '$userIdArray'
         $user = User::find($userId);
 
         $outOfOfficeEvents = OutOfOfficeEvent::whereBelongsTo($user)
-                                                ->whereDate('start', '>=', $validatedRequestData['startDate'])
-                                                ->whereDate('start', '<=', $validatedRequestData['endDate'])
+                                                ->whereDate('start', '>=',  $startDate)
+                                                ->whereDate('start', '<=', $endDate)
                                                 ->get();
 
         return response()->json($outOfOfficeEvents, 200);
