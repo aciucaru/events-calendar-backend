@@ -6,8 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Invitation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use App\Models\User;
+use Illuminate\Validation\Rule;
 
+use App\Models\User;
 use App\Models\MeetingAppointment;
 use App\Models\MeetingEvent;
 use App\Models\OutOfOfficeEvent;
