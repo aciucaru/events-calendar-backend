@@ -91,4 +91,24 @@ class InvitationController extends Controller
             return response()->json('Invitation deleted', 200); // 200 - succesfull request
         }
     }
+
+    /* Method that accepts a certain invitation coresponding to the 'invitationId'.
+    The JSON request object looks like this (example):
+    {
+        "guest_answer": "YES" | "NO" | "MAYBE" // "NO_ANSWER" is not acceptable, it has to be a concrete answer
+    } */
+    public function answerInvitation(Request $request, string $invitationId)
+    {
+        $validatedRequestData = $request->validate(
+            [
+                'guest_answer' =>  [ 'required', Rule::in(['YES', 'NO', 'MAYBE']) ]
+            ]
+        );
+
+        $invitation = Invitation::find($invitationId);
+        $invitation->guest_answer = $validatedRequestData['guest_answer'];
+        $invitation->update();
+
+        return response()->json($invitation, 200); // 200 - succesfull request, resource updated and transmitted
+    }
 }
