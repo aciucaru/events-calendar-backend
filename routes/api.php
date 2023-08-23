@@ -43,7 +43,6 @@ Route::get('/user/{userId}/activeInvitationsByDate', [UserController::class, 'ge
 Route::get('/user/{userId}/outOfOfficeEventsByDate', [UserController::class, 'getOutOfOfficeEventsByDate']);
 
 
-
 Route::get('/meeting', [MeetingEventController::class, 'index']);
 Route::get('/meeting/{meetingId}', [MeetingEventController::class, 'show']);
 Route::post('/meeting', [MeetingEventController::class, 'storeWithAppointment']);

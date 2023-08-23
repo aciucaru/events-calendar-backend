@@ -179,7 +179,7 @@ class MeetingEventController extends Controller
             $validatedMeetingAppointment = $request->validate(
                 [
                     'id' => ['exclude'], // unnecessary
-                    'meeting_id_fk' => ['exclude'], // the id of the meeting is already in the request parameter
+                    'meeting_id_fk' => ['exclude'], // unnecessary, the id of the meeting is already in the request parameter
                     'active' => ['exclude'], // the active status will always be 1 for new appointments
                     'start' => ['date'],
                     'end' => ['date']
